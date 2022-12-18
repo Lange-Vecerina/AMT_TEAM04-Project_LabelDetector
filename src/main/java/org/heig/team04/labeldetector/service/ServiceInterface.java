@@ -22,5 +22,5 @@ public interface ServiceInterface {
      *                      percent
      * @return String containing the result of the request.
      */
-    String analyze(byte[] objectBytes, int maxLabels, float minConfidence);
+    String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence);
 }
