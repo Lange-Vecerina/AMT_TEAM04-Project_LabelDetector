@@ -1,5 +1,7 @@
 package org.heig.team04.labeldetector.service;
 
+import java.io.IOException;
+
 public interface ServiceInterface {
 
     /**
@@ -11,7 +13,7 @@ public interface ServiceInterface {
      *                      percent
      * @return String containing the result of the request.
      */
-    String analyze(String objectUri, int maxLabels, float minConfidence);
+    String analyze(String objectUri, int maxLabels, float minConfidence) throws IOException;
 
     /**
      * Detects labels in an image.

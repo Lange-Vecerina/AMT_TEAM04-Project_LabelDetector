@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.rmi.RemoteException;
 import java.util.List;
 
 @Service
@@ -54,9 +55,14 @@ public class ServiceInterfaceImp implements ServiceInterface{
                 .minConfidence(minConfidence)
                 .build();
 
-        DetectLabelsResponse labelsResponse = client.detectLabels(detectLabelsRequest);
-        List<Label> labels = labelsResponse.labels();
-        return labels.toString();
+        try {
+            DetectLabelsResponse labelsResponse = client.detectLabels(detectLabelsRequest);
+            List<Label> labels = labelsResponse.labels();
+            return labels.toString();
+        } catch (InvalidImageFormatException e) {
+            System.out.println(e);
+        }
+        return null;
     }
 
     /**
@@ -68,7 +74,7 @@ public class ServiceInterfaceImp implements ServiceInterface{
      * @return String containing the result of the request.
      */
     @Override
-    public String analyze(String objectUri, int maxLabels, float minConfidence) {
+    public String analyze(String objectUri, int maxLabels, float minConfidence) throws IOException {
         try {
             URL url = new URL(objectUri);
             InputStream is = url.openStream();
@@ -84,9 +90,11 @@ public class ServiceInterfaceImp implements ServiceInterface{
             tempFile.delete();
             return labels;
         } catch (MalformedURLException e) {
-            System.out.println("mauvaise url");
-        } catch (RekognitionException | IOException e) {
-            System.exit(1);
+            throw new MalformedURLException("Invalid URL");
+        } catch (IOException e) {
+            throw new IOException("File not found", e);
+        } catch (InvalidImageFormatException e){
+            System.out.println(e);
         }
         return null;
     }
@@ -107,7 +115,7 @@ public class ServiceInterfaceImp implements ServiceInterface{
             return getLabels(maxLabels, minConfidence, sourceStream);
 
         } catch (RekognitionException e) {
-            System.exit(1);
+
         }
 
         return null;

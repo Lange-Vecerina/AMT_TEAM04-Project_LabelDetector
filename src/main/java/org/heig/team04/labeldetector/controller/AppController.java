@@ -1,10 +1,11 @@
 package org.heig.team04.labeldetector.controller;
 
-import com.amazonaws.protocol.json.JsonContent;
 import org.heig.team04.labeldetector.service.ServiceInterface;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.heig.team04.labeldetector.dto.DTOs;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/label-detector")
@@ -16,7 +17,7 @@ public class AppController {
     }
 
     @GetMapping ("/analyzeUri")
-    public String analyzeUri(@RequestBody DTOs.UriDTO uriDTO) {
+    public String analyzeUri(@RequestBody DTOs.UriDTO uriDTO) throws IOException {
         return appService.analyze(uriDTO.getUri(), uriDTO.getMaxLabels(), uriDTO.getMinConfidence());
     }
 
