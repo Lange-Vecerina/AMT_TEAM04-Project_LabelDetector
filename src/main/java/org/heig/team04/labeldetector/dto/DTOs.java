@@ -4,8 +4,8 @@ public class DTOs {
 
     public static class UriDTO {
         private String uri;
-        private int maxLabels;
-        private float minConfidence;
+        private int maxLabels=2;
+        private float minConfidence=0.8f;
 
         public String getUri() {
             return uri;
@@ -34,8 +34,8 @@ public class DTOs {
 
     public static class ContentDTO {
         private byte[] content;
-        private int maxLabels;
-        private float minConfidence;
+        private int maxLabels=3;
+        private float minConfidence=0.8f;
 
         public ContentDTO(byte[] content, int maxLabels, float minConfidence) {
             this.content = content;
