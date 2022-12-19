@@ -16,12 +16,12 @@ public class AppController {
         this.appService = appService;
     }
 
-    @GetMapping ("/analyzeUri")
+    @PostMapping ("/analyzeUri")
     public String analyzeUri(@RequestBody DTOs.UriDTO uriDTO) throws IOException {
         return appService.analyze(uriDTO.getUri(), uriDTO.getMaxLabels(), uriDTO.getMinConfidence());
     }
 
-    @GetMapping ("/analyzeContent")
+    @PostMapping ("/analyzeContent")
     public String analyzeContent(@RequestBody DTOs.ContentDTO contentDTO) {
         return appService.analyzeContent(contentDTO.getContent(), contentDTO.getMaxLabels(), contentDTO.getMinConfidence());
     }
