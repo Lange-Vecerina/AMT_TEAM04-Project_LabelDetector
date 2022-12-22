@@ -26,5 +26,5 @@ jobs:
     - name: Build and Publish the Docker image
       run: | 
               docker build --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production . --tag ghcr.io/amt-team04/label-detector:latest
-              docker push ghcr.io/amt-team04/label-detector:lates
+              docker push ghcr.io/amt-team04/label-detector:latest
       
