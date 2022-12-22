@@ -3,8 +3,11 @@ package org.heig.team04.labeldetector.service;
 import java.io.*;
 
 import com.amazonaws.util.IOUtils;
+import org.heig.team04.labeldetector.service.exceptions.ExternalServiceException;
+import org.heig.team04.labeldetector.service.exceptions.InvalidURLException;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -26,7 +29,8 @@ public class ServiceInterfaceImp implements ServiceInterface{
 
     public ServiceInterfaceImp() {
         client = RekognitionClient.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"))))
+                //.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"))))
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
                 .region(Region.EU_WEST_2)
                 .build();
     }
@@ -74,11 +78,11 @@ public class ServiceInterfaceImp implements ServiceInterface{
      * @return String containing the result of the request.
      */
     @Override
-    public String analyze(String objectUri, int maxLabels, float minConfidence) throws IOException {
+    public String analyze(String objectUrl, int maxLabels, float minConfidence) throws IOException, InvalidURLException{
         try {
-            URL url = new URL(objectUri);
+            URL url = new URL(objectUrl);
             InputStream is = url.openStream();
-            String suffix = objectUri.substring(objectUri.lastIndexOf(".") + 1);
+            String suffix = objectUrl.substring(objectUrl.lastIndexOf(".") + 1);
             File tempFile = File.createTempFile("tempImg", "." + suffix);
             OutputStream os = Files.newOutputStream(tempFile.toPath());
 
@@ -90,13 +94,13 @@ public class ServiceInterfaceImp implements ServiceInterface{
             tempFile.delete();
             return labels;
         } catch (MalformedURLException e) {
-            throw new MalformedURLException("Invalid URL");
+            throw new InvalidURLException("Invalid URL", e);
         } catch (IOException e) {
             throw new IOException("File not found", e);
-        } catch (InvalidImageFormatException e){
-            System.out.println(e);
         }
-        return null;
+    }
+    public String analyze(String objectUrl) throws IOException, InvalidURLException {
+        return analyze(objectUrl, 10, 90);
     }
 
     /**
@@ -108,16 +112,14 @@ public class ServiceInterfaceImp implements ServiceInterface{
      * @return String containing the result of the request.
      */
     @Override
-    public String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence) {
+    public String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence) throws ExternalServiceException {
 
         try {
             InputStream sourceStream = new ByteArrayInputStream(objectBytes);
             return getLabels(maxLabels, minConfidence, sourceStream);
-
         } catch (RekognitionException e) {
-
+            throw new ExternalServiceException(e);
         }
 
-        return null;
     }
 }

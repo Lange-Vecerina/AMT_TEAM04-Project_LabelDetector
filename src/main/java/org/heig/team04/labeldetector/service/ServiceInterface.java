@@ -1,5 +1,8 @@
 package org.heig.team04.labeldetector.service;
 
+import org.heig.team04.labeldetector.service.exceptions.ExternalServiceException;
+import org.heig.team04.labeldetector.service.exceptions.InvalidURLException;
+
 import java.io.IOException;
 
 public interface ServiceInterface {
@@ -13,7 +16,7 @@ public interface ServiceInterface {
      *                      percent
      * @return String containing the result of the request.
      */
-    String analyze(String objectUri, int maxLabels, float minConfidence) throws IOException;
+    String analyze(String objectUri, int maxLabels, float minConfidence) throws IOException, InvalidURLException, ExternalServiceException;
 
     /**
      * Detects labels in an image.
@@ -24,5 +27,5 @@ public interface ServiceInterface {
      *                      percent
      * @return String containing the result of the request.
      */
-    String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence);
+    String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence) throws ExternalServiceException;
 }
