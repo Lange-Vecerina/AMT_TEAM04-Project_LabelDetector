@@ -19,7 +19,7 @@ FROM base as test
 RUN ["./mvnw", "test"]
 
 FROM base as build
-RUN ./mvnw package
+RUN chmod +x mvnw &&./mvnw package
 
 FROM eclipse-temurin:17-jre-jammy as production
 EXPOSE 8081
