@@ -23,9 +23,8 @@ jobs:
          registry: ghcr.io
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build the hello-docker Docker image
     - name: Build the Docker image
       run: | 
-            docker build -t label_detector --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production .
-            docker push ghcr.io/amt-team04/data-object:latest
+              docker build -t label_detector --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production .
+              docker push ghcr.io/amt-team04/data-object:latest
       
