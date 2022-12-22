@@ -34,7 +34,7 @@ public class DTOs {
 
     public static class ContentDTO {
         private byte[] content;
-        private int maxLabels=3;
+        private int maxLabels=2;
         private float minConfidence=0.8f;
 
         public ContentDTO(byte[] content, int maxLabels, float minConfidence) {

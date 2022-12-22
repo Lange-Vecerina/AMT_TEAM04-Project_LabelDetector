@@ -26,7 +26,7 @@ public class ServiceInterfaceImp implements ServiceInterface{
 
     public ServiceInterfaceImp() {
         client = RekognitionClient.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_KEY"))))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"))))
                 .region(Region.EU_WEST_2)
                 .build();
     }
