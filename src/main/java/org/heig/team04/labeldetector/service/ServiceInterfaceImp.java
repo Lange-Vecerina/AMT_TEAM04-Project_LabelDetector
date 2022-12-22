@@ -1,23 +1,38 @@
 package org.heig.team04.labeldetector.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+
+import com.amazonaws.util.IOUtils;
+import org.heig.team04.labeldetector.service.exceptions.ExternalServiceException;
+import org.heig.team04.labeldetector.service.exceptions.InvalidURLException;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.rmi.RemoteException;
 import java.util.List;
 
+@Service
 public class ServiceInterfaceImp implements ServiceInterface{
     private final RekognitionClient client;
 
-    public ServiceInterfaceImp(RekognitionClient rekognitionClient) {
-        client = rekognitionClient;
+    public ServiceInterfaceImp() {
+        client = RekognitionClient.builder()
+                //.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"))))
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .region(Region.EU_WEST_2)
+                .build();
     }
 
     // TODO s3 ?
@@ -26,8 +41,7 @@ public class ServiceInterfaceImp implements ServiceInterface{
      * get the labels list of the image
      *
      * @param maxLabels     the maximum number of labels to return
-     * @param minConfidence the minimum confidence for a label to be returned in
-     *                      percent
+     * @param minConfidence the minimum confidence for a label to be returned in percent
      * @param sourceStream  the stream of the image
      * @return the labels list
      */
@@ -45,29 +59,48 @@ public class ServiceInterfaceImp implements ServiceInterface{
                 .minConfidence(minConfidence)
                 .build();
 
-        DetectLabelsResponse labelsResponse = client.detectLabels(detectLabelsRequest);
-        List<Label> labels = labelsResponse.labels();
-        return labels.toString();
+        try {
+            DetectLabelsResponse labelsResponse = client.detectLabels(detectLabelsRequest);
+            List<Label> labels = labelsResponse.labels();
+            return labels.toString();
+        } catch (InvalidImageFormatException e) {
+            System.out.println(e);
+        }
+        return null;
     }
 
     /**
      * Detects labels in an image.
      *
-     * @param objectUrl     the uri of the image
+     * //@param objectUri     the uri of the image
      * @param maxLabels     the maximum number of labels to return
-     * @param minConfidence the minimum confidence for a label to be returned in
-     *                      percent
+     * @param minConfidence the minimum confidence for a label to be returned in percent
      * @return String containing the result of the request.
      */
     @Override
-    public String analyze(String objectUrl, int maxLabels, float minConfidence) {
+    public String analyze(String objectUrl, int maxLabels, float minConfidence) throws IOException, InvalidURLException{
         try {
-            InputStream sourceStream = new FileInputStream(objectUrl);
-            return getLabels(maxLabels, minConfidence, sourceStream);
-        } catch (RekognitionException | FileNotFoundException e) {
-            System.exit(1);
+            URL url = new URL(objectUrl);
+            InputStream is = url.openStream();
+            String suffix = objectUrl.substring(objectUrl.lastIndexOf(".") + 1);
+            File tempFile = File.createTempFile("tempImg", "." + suffix);
+            OutputStream os = Files.newOutputStream(tempFile.toPath());
+
+            IOUtils.copy(is, os);
+            is.close();
+            os.close();
+            InputStream sourceStream = new FileInputStream(tempFile);
+            var labels = getLabels(maxLabels, minConfidence, sourceStream);
+            tempFile.delete();
+            return labels;
+        } catch (MalformedURLException e) {
+            throw new InvalidURLException("Invalid URL", e);
+        } catch (IOException e) {
+            throw new IOException("File not found", e);
         }
-        return null;
+    }
+    public String analyze(String objectUrl) throws IOException, InvalidURLException {
+        return analyze(objectUrl, 10, 90);
     }
 
     /**
@@ -75,21 +108,18 @@ public class ServiceInterfaceImp implements ServiceInterface{
      *
      * @param objectBytes   the bytes of the image 64 encoded
      * @param maxLabels     the maximum number of labels to return
-     * @param minConfidence the minimum confidence for a label to be returned in
-     *                      percent
+     * @param minConfidence the minimum confidence for a label to be returned in percent
      * @return String containing the result of the request.
      */
     @Override
-    public String analyze(byte[] objectBytes, int maxLabels, float minConfidence) {
+    public String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence) throws ExternalServiceException {
 
         try {
             InputStream sourceStream = new ByteArrayInputStream(objectBytes);
             return getLabels(maxLabels, minConfidence, sourceStream);
-
         } catch (RekognitionException e) {
-            System.exit(1);
+            throw new ExternalServiceException(e);
         }
 
-        return null;
     }
 }
