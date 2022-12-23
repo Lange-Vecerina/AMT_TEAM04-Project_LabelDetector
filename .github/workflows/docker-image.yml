@@ -2,9 +2,9 @@ name: Label Detector Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
 
@@ -23,8 +23,8 @@ jobs:
          registry: ghcr.io
          username: ${{ github.actor }}
          password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build the Docker image
+    - name: Build and Publish the Docker image
       run: | 
-              docker build -t ghcr.io/amt-team04/label-detector --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production .
-              docker push ghcr.io/amt-team04/label-detector
+              docker build --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production . --tag ghcr.io/lange-vecerina/amt_team04-project_labeldetector:latest
+              docker push ghcr.io/lange-vecerina/amt_team04-project_labeldetector:latest
       

@@ -1,26 +1,18 @@
 package org.heig.team04.labeldetector.service;
 
 import java.io.*;
-
-import com.amazonaws.util.IOUtils;
 import org.heig.team04.labeldetector.service.exceptions.ExternalServiceException;
 import org.heig.team04.labeldetector.service.exceptions.InvalidURLException;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import software.amazon.awssdk.services.rekognition.model.*;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.rmi.RemoteException;
 import java.util.List;
 
 @Service
@@ -29,13 +21,10 @@ public class ServiceInterfaceImp implements ServiceInterface{
 
     public ServiceInterfaceImp() {
         client = RekognitionClient.builder()
-                //.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"))))
                 .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
                 .region(Region.EU_WEST_2)
                 .build();
     }
-
-    // TODO s3 ?
 
     /**
      * get the labels list of the image
@@ -82,25 +71,14 @@ public class ServiceInterfaceImp implements ServiceInterface{
         try {
             URL url = new URL(objectUrl);
             InputStream is = url.openStream();
-            String suffix = objectUrl.substring(objectUrl.lastIndexOf(".") + 1);
-            File tempFile = File.createTempFile("tempImg", "." + suffix);
-            OutputStream os = Files.newOutputStream(tempFile.toPath());
+            String labels = getLabels(maxLabels, minConfidence, is);
 
-            IOUtils.copy(is, os);
-            is.close();
-            os.close();
-            InputStream sourceStream = new FileInputStream(tempFile);
-            var labels = getLabels(maxLabels, minConfidence, sourceStream);
-            tempFile.delete();
             return labels;
         } catch (MalformedURLException e) {
             throw new InvalidURLException("Invalid URL", e);
         } catch (IOException e) {
             throw new IOException("File not found", e);
         }
-    }
-    public String analyze(String objectUrl) throws IOException, InvalidURLException {
-        return analyze(objectUrl, 10, 90);
     }
 
     /**
@@ -113,7 +91,6 @@ public class ServiceInterfaceImp implements ServiceInterface{
      */
     @Override
     public String analyzeContent(byte[] objectBytes, int maxLabels, float minConfidence) throws ExternalServiceException {
-
         try {
             InputStream sourceStream = new ByteArrayInputStream(objectBytes);
             return getLabels(maxLabels, minConfidence, sourceStream);
