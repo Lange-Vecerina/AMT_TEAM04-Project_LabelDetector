@@ -8,6 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
+
+/**
+ * This class is the controller of the application.
+ *
+ * @author Ivan Vecerina, Yanik Lange
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("/label-detector")
 public class AppController {

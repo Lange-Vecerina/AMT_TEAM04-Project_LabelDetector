@@ -1,6 +1,12 @@
 package org.heig.team04.labeldetector.dto;
 
 
+/**
+ * SourceDTO is a DTO for the POST/PUT request to specify the source of the object.
+ *
+ * @author Ivan Vecerina, Yanik Lange
+ * @version 1.0
+ */
 public class SourceDTO {
         private String uri = "";
         private byte[] content = new byte[0];
