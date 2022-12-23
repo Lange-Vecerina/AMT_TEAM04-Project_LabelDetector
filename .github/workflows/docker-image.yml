@@ -25,6 +25,6 @@ jobs:
          password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and Publish the Docker image
       run: | 
-              docker build --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production . --tag ghcr.io/Lange-Vecerina/AMT_TEAM04-Project_LabelDetector:latest
-              docker push ghcr.io/Lange-Vecerina/AMT_TEAM04-Project_LabelDetector:latest
+              docker build --build-arg aws_access_key_id=$AWS_ACCESS_KEY_ID --build-arg aws_secret_access_key=$AWS_SECRET_ACCESS_KEY --target production . --tag ghcr.io/lange-vecerina/amt_team04-project_labeldetector:latest
+              docker push ghcr.io/lange-vecerina/amt_team04-project_labeldetector:latest
       
