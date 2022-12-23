@@ -123,7 +123,7 @@ Download the latest docker package in github (you can use docker pull command).
 
 to run a container :
 
-```docker run --name=data_object_v2 -p 8080:8080 -e AWS_ACCESS_KEY_ID=<AWS_KEY> -e AWS_SECRET_ACCESS_KEY=<AWS_SECRET> ghcr.io/lange-vecerina/amt_team04-project_dataobject```
+```docker run --name=labe_detector_v2 -p 8081:8081 -e AWS_ACCESS_KEY_ID=<AWS_KEY> -e AWS_SECRET_ACCESS_KEY=<AWS_SECRET> ghcr.io/lange-vecerina/amt_team04-project_labeldetector```
 
 If you don't want to use the package you can build the image yourself with our Dockerfile :
 
@@ -133,4 +133,4 @@ If you want only to run the tests in docker :
 
 ```docker build -t <NOM_DE_IMAGE> --build-arg aws_access_key_id=<AWS_KEY> --build-arg aws_secret_access_key=<AWS_SECRET> --target test .```
 
-Your microservice should be running and is listening to port 8080.
+Your microservice should be running and is listening to port 8081.
