@@ -24,6 +24,7 @@ public class AppController {
         this.appService = appService;
     }
 
+    // TODOD ça devrait être un GET pas un POST vu que la resource sur le serveur n'est pas modifié.
     @PostMapping ("/analyze")
     public ResponseEntity<String> analyzeUri(@RequestBody SourceDTO source) throws IOException {
         String result;
@@ -33,6 +34,8 @@ public class AppController {
             } else {
                 result = appService.analyze(source.getUri(), source.getMaxLabels(), source.getMinConfidence());
             }
+            // TODO le InvalidURLException devrait etre un BadRequest (400) et pas un InternalServerError (500) 
+            // vu que l'URL en question est donnée par l'utilisateur
         } catch(IOException | InvalidURLException | ExternalServiceException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
